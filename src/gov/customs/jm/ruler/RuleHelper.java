@@ -45,8 +45,14 @@ import ExpressionHelper.EntryHelper;
 //import ExpressionHelper.EntryHelper;
 
 public class RuleHelper {
+	
 	private static Boolean isGo = true;
 	
+	/**
+	 * 判断是否合法日期
+	 * @param str
+	 * @return
+	 */
 	private static boolean isValidDate(String str) {
 		boolean convertSuccess = false;
 		SimpleDateFormat[] formats = { new SimpleDateFormat("yyyy-MM-dd"),
@@ -62,96 +68,6 @@ public class RuleHelper {
 		}
 		return convertSuccess;
 	}
-	
-	public static Connection getConnection() throws Exception {
-		return getOracleConnection();
-	}
-
-	private static Connection getOracleConnection() {
-		String dbUrl = "jdbc:oracle:thin:@192.168.1.16:1521:h2010";
-		String theUser = "allsys";
-		String thePw = "allsysnew";
-		Connection c = null;
-		Statement conn;
-		ResultSet rs = null;
-
-		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
-			c = DriverManager.getConnection(dbUrl, theUser, thePw);
-			// conn = c.createStatement();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return c;
-	}
-
-	private static CachedRowSet getExprRelAllData(BigInteger rule_id)
-			throws SQLException {
-		Connection con = null;
-		Statement statement = null;
-		ResultSet resultSet = null;
-		CachedRowSet crs = null;
-		try {
-			con = getConnection();
-			statement = con.createStatement();
-			String conditonSql = "select * from expr_rel where rule_id = "
-					+ rule_id;
-			resultSet = statement.executeQuery(conditonSql);
-			crs = new com.sun.rowset.CachedRowSetImpl();
-			crs.populate(resultSet);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (resultSet != null)
-				resultSet.close();
-			if (statement != null) {
-				statement.close();
-			}
-			if (con != null)
-				con.close();
-		}
-		return crs;
-	}
-
-	private static Object runExpr(BigInteger exprID) {
-		// 此处根据表达式id计算表达式
-		return (Object) true;
-	}
-
-
-	private static Integer GetRootRuleID(Integer rule_id) throws Exception {
-		CachedRowSet rs = GetDataBySql("select * from expr_rel where rule_id = "
-				+ rule_id + " and parent_rel_id is null");
-		rs.first();
-		return rs.getInt("rel_id");
-	}
-
-	@Deprecated
-	private static CachedRowSet GetDataBySql(String sql) throws SQLException {
-		Connection con = null;
-		Statement statement = null;
-		ResultSet resultSet = null;
-		CachedRowSet crs = null;
-		try {
-			con = getConnection();
-			statement = con.createStatement();
-			String conditonSql = sql;
-			resultSet = statement.executeQuery(conditonSql);
-			crs = new com.sun.rowset.CachedRowSetImpl();
-			crs.populate(resultSet);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (resultSet != null)
-				resultSet.close();
-			if (statement != null) {
-				statement.close();
-			}
-			if (con != null)
-				con.close();
-		}
-		return crs;
-	}
 
 	/**
 	 * 根据父节点返回子节点list
@@ -165,22 +81,6 @@ public class RuleHelper {
 		rrd.setId(rrdid);
 		return new RuleRelDataHome().findByExample(rrd); 
 	}
-	
-//	/*
-//	 * 根据
-//	 */
-//	@Deprecated
-//	private static CachedRowSet GetExprDataByRelID(Integer relID)
-//			throws SQLException {
-//		Integer exprID;
-//		CachedRowSet relDataCachedRowSet = GetDataBySql("select * from expr_rel where parent_rel_id = " + relID);
-//		if (relDataCachedRowSet.next()) {
-//			exprID = relDataCachedRowSet.getInt("EXPR_ID");
-//			return getSingleRuleData(exprID);
-//		}else {
-//			return null;
-//		}
-//	}
 	
 	/**
 	 * 使用hibernate，根据rule_id，查找rule_rel_data中相应记录。
@@ -213,6 +113,9 @@ public class RuleHelper {
 	private static Object ExecuteExpr(String exprCond, Object data) {
 		String result = "";
 		Object m = null;
+				
+		//Expression expr = new Expression();
+	
 //		Expression expObj = new Expression(exprCond,
 //				(IGetValue) new EntryHelper());
 //		try {
@@ -369,9 +272,7 @@ public class RuleHelper {
 		String note = "";
 		String businessCode = "";
 		String positionDesc = "";
-		
-		Boolean isLoop = null;
-		Boolean isLeaf = null;
+
 //		String preExprCond = null;
 //		Boolean isResult = false;
 //		String resultDesc = "";
