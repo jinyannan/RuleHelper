@@ -18,31 +18,19 @@ import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.sql.rowset.CachedRowSet;
-
 import org.antlr.ext.ConditionExpression.Expression;
 import org.antlr.ext.ConditionExpression.Visitor.IGetValue;
-
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import com.sun.org.apache.bcel.internal.generic.NEW;
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.LocalAttribute;
 import gov.customs.jm.data.*;
-//import Data.BhlHead;
-//import Data.BhlList;
-//import Data.EmsAlcWork;
-//import Data.ExprData;
-//import Data.ExprDataHome;
-//import Data.PreBhlHead;
-//import Data.PreBhlList;
 import ExpressionHelper.EntryHelper;
-//import org.glassfish.tyrus.core.PrimitiveDecoders.BooleanDecoder;
 
-//import Data.BhlHead;
-//import Data.BhlList;
-//import Data.EmsAlcWork;
-//import Data.ExprData;
-//import Data.ExprDataHome;
-//import Data.PreBhlHead;
-//import Data.PreBhlList;
-//import ExpressionHelper.EntryHelper;
 
 public class RuleHelper {
 	
@@ -75,11 +63,17 @@ public class RuleHelper {
 	 * @return
 	 */
 	private static List<RuleRelData> GetChileExprDataByHB(BigDecimal parentRuleID){
-		RuleRelData rrd = new RuleRelData();
-		RuleRelDataId rrdid = new RuleRelDataId();
-		rrdid.setParentRuleId(parentRuleID);
-		rrd.setId(rrdid);
-		return new RuleRelDataHome().findByExample(rrd); 
+		SessionFactory sessionFactory = null;
+		try {
+			sessionFactory= new Configuration().configure()
+					.buildSessionFactory();
+		} catch (HibernateException e) {
+			e.printStackTrace();
+		}
+		Session s = sessionFactory.openSession();
+		Query queryRuleRelData = s.createSQLQuery("select * from RULE_REL_DATA where PARENT_RULE_ID = " + parentRuleID).addEntity(RuleRelData.class);
+		List<RuleRelData> listRuleRelData = queryRuleRelData.list();
+		return listRuleRelData;
 	}
 	
 	/**
@@ -110,29 +104,8 @@ public class RuleHelper {
 	 * @param data
 	 * @return
 	 */
-	private static Object ExecuteExpr(String exprCond, Object data) {
-		String result = "";
-		Object m = null;
-				
-		//Expression expr = new Expression();
-	
-//		Expression expObj = new Expression(exprCond,
-//				(IGetValue) new EntryHelper());
-//		try {
-//			expObj.Compile();
-//			if (data == null) {
-//				data = (Object) ExecRuleHelper.getTestData();
-//			}
-//			m = expObj.Calculate(data);
-//			if (m == null) {
-//				result = "error";
-//			} else {
-//				result = m.toString();
-//			}
-//		} catch (Exception e) {
-//			result = "error";
-//		}
-		return m;
+	private static Object ExecuteExpr(String exprCond, Object data, Object local) {
+		return new Expression().ExecuteExpression(exprCond, data, local);
 	}
 
 	/**
@@ -209,7 +182,7 @@ public class RuleHelper {
 	 * @param data
 	 * @return
 	 */
-	private static String GetTransResult(String beforTransResult, Object data) {
+	private static String GetTransResult(String beforTransResult, Object data, Object local) {
 		String regex = "(?<=\\{)[^{}]+(?=\\})";
 		//beforeResult = "报关单号为{$PRI_LIST.G_NO},G_NO为{$PRI_HEAD.G_TYPE}数据出现错误";
 		Pattern pat = Pattern.compile(regex);
@@ -219,7 +192,7 @@ public class RuleHelper {
 		String result = "";
 		while (matcher.find()) {
 			String temp = beforTransResult.substring(matcher.start(), matcher.end());
-			result = String.valueOf(ExecuteExpr(temp, data));
+			result = String.valueOf(ExecuteExpr(temp, data, local));
 			afterTransResult += beforTransResult.substring(location, matcher.start()) + result;
 			location = matcher.end();
 		}
@@ -234,7 +207,7 @@ public class RuleHelper {
 	 * @param data
 	 * @throws Exception
 	 */
-	public static void ExecuteRuleByStack(BigDecimal rootRuleID, Object data)
+	public static void ExecuteRuleByStack(BigDecimal rootRuleID, Object data, Object local)
 			throws Exception {
 		//Integer rootRelID = GetRootRuleID(RootRelID);
 		//Integer rootRelID = RootRelID;
@@ -283,7 +256,12 @@ public class RuleHelper {
 		Boolean result = true;
 		Boolean postResult = true;
 		
+		/**
+		 * loopCountMap:记录循环节点当前的记录集下表
+		 * loopTempMap:保存循环节点过滤后的记录
+		 */
 		HashMap<BigDecimal, Integer> loopCountMap = new HashMap<BigDecimal, Integer>();
+		HashMap<BigDecimal, List<?>> loopTempMap = new HashMap<BigDecimal, List<?>>();
 		//CachedRowSet firstLevelExpr = GetChileExprData(rootRelID);
 		//CachedRowSet rootLevelRelData = GetSingleRelData(rootRuleID);
 		List<RuleRelData> childLevelRule = null;
@@ -296,18 +274,6 @@ public class RuleHelper {
 		
 		RuleRelData rootLevelRelDataList = GetSingleRelDataByHB(rootRuleID);
 		relDataStack.push(rootLevelRelDataList);
-
-//		if (rootLevelRelData.next()) {
-//			Integer[] relDataArrayIntegers = new Integer[] {
-//					rootLevelRelData.getInt("parent_rule_id"),
-//					rootLevelRelData.getInt("rule_id"),
-//					rootLevelRelData.getString("post_rule_desc") };
-//			relDataStack.push(relDataArrayIntegers);
-//			//rootLevelRelData.close();
-//		}else {
-//			System.out.println("该rel_id对应expr_id不存在！");
-//			return;
-//		}
 
 		while (!relDataStack.empty()) {
 			rrData = relDataStack.peek();
@@ -350,14 +316,14 @@ public class RuleHelper {
 				positionDesc = rData.getPositionDesc();
 
 				if(!isEmptyString(preRuleCond)){
-					preResult = (Boolean) ExecuteExpr(preRuleCond, data);
+					preResult = (Boolean) ExecuteExpr(preRuleCond, data, local);
 				}else {
 					preResult = true;
 				}
 			}
 
 			if (!isEmptyString(postRuleDesc)) {
-				postResult = (Boolean) ExecuteExpr(postRuleDesc, data);
+				postResult = (Boolean) ExecuteExpr(postRuleDesc, data, local);
 			}else {
 				postResult = true;
 			}
@@ -369,21 +335,21 @@ public class RuleHelper {
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data);
+						result = (Boolean) ExecuteExpr(ruleCond, data, local);
 					}
 					if (result == null) {
-						WriteLog(ruleData.getString("expr_cond") + ";" + ruleData.getString("expr_desc") + ";" + ruleData.getString("result_desc") + ";result == null");
+						WriteLog(ruleCond + ";" + ruleDesc + ";" + logDesc + ";result == null");
 						result = false;
 					}
-					WriteLog(ruleData.getString("expr_id") + ";" + ruleData.getString("expr_desc") + ";");
+					WriteLog(ruleID + ";" + ruleCond + ";");
 					//当result 为true，并且islog为true，记录日志
 					if (result) {
 						if (isLog) {
 							if (!isEmptyString(logDesc)) {
-								WriteLog("Log Desc" + GetTransResult(logDesc, data));
+								WriteLog("Log Desc" + GetTransResult(logDesc, data, local));
 							}
 							if (!isEmptyString(positionDesc)) {
-								WriteLog("result_pos:" + GetTransResult(positionDesc, data));
+								WriteLog("result_pos:" + GetTransResult(positionDesc, data, local));
 							}
 						}
 					}
@@ -392,11 +358,21 @@ public class RuleHelper {
 					}
 				} else if (ruleType.equals("2")) {
 					HashMap<String, Object> mapData = (HashMap<String, Object>) data;
-					List loopData = (List) mapData.get(loopKey);
+					
+					//List loopData = (List) mapData.get(loopKey);
+					/**
+					 * 如果缓存中存在当前循环节点的结果集，则从缓存中获得
+					 */
+					List<?> loopData;
+					if (loopTempMap.containsKey(ruleID)) {
+						loopData = loopTempMap.get(ruleID);
+					}else {
+						loopData = (List<?>)ExecuteExpr(loopKey, data, local);
+					}
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data);
+						result = (Boolean) ExecuteExpr(ruleCond, data, local);
 					}
 					Integer maxCount;
 					Integer currentCount;
@@ -413,23 +389,14 @@ public class RuleHelper {
 						mapData.put(execKey,
 								(Object) loopData.get(currentCount));
 						childLevelRule = GetChileExprDataByHB(parentRuleID);
-//						while (childLevelExpr.next()) {
-//							Integer[] relDataArrayIntegers = new Integer[] {
-//									childLevelExpr.getInt("rel_id"),
-//									childLevelExpr.getInt("parent_rel_id"),
-//									childLevelExpr.getInt("parent_expr_id"),
-//									childLevelExpr.getInt("expr_id"),
-//									childLevelExpr.getInt("post_expr_id") };
-//							relDataStack.push(relDataArrayIntegers);
-//						} 
-						
 						for (int i = 0; i < childLevelRule.size(); i++) {
 							relDataStack.push(childLevelRule.get(i));
 						}
 						currentCount++;
 						loopCountMap.put(parentRuleID, currentCount);
 					} else {
-						loopCountMap.remove(parentRuleID);
+						loopCountMap.remove(ruleID);
+						loopTempMap.remove(ruleID);
 						relDataStack.pop();
 					}
 				} else {
@@ -438,20 +405,10 @@ public class RuleHelper {
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data);
+						result = (Boolean) ExecuteExpr(ruleCond, data, local);
 					}
 
 					if (result) {
-//						childLevelExpr = GetChileExprData(relID);
-//						while (childLevelExpr.next()) {
-//							Integer[] relDataArrayIntegers = new Integer[] {
-//									childLevelExpr.getInt("rel_id"),
-//									childLevelExpr.getInt("parent_rel_id"),
-//									childLevelExpr.getInt("parent_expr_id"),
-//									childLevelExpr.getInt("expr_id"),
-//									childLevelExpr.getInt("post_expr_id") };
-//							relDataStack.push(relDataArrayIntegers);
-//						}
 						childLevelRule = GetChileExprDataByHB(parentRuleID);
 						for (int i = 0; i < childLevelRule.size(); i++) {
 							relDataStack.push(childLevelRule.get(i));

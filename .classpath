@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="lib/jboss-transaction-api_1.2_spec-1.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/ojdbc7.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.3-1102.jdbc41.jar"/>
-	<classpathentry kind="lib" path="lib/antlrpro.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 7 [1.7.0_67]"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ExpressionHelper"/>
 	<classpathentry kind="output" path="bin"/>
