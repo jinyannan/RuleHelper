@@ -102,12 +102,23 @@ public class RuleHelper {
 	 * 根据表达式和传入的数据，运算表达式
 	 * @param exprCond
 	 * @param data
+	 * @param local
 	 * @return
 	 */
 	private static Object ExecuteExpr(String exprCond, Object data, Object local) {
 		return new Expression().ExecuteExpression(exprCond, data, local);
 	}
 
+	/**
+	 * 根据表达式和传入的数据，运算表达式
+	 * @param exprCond
+	 * @param data
+	 * @return
+	 */
+	private static Object ExecuteExpr(String exprCond, Object data) {
+		return ExecuteExpr(exprCond, data, null);
+	}
+	
 	/**
 	 *  首字母大写 
 	 * @param s
@@ -176,6 +187,10 @@ public class RuleHelper {
 		}
 	}
 
+	private static String GetTransResult(String beforTransResult, Object data) {
+		return GetTransResult(beforTransResult, data, null);
+	}
+	
 	/**
 	 * 将结果中的表达式部分转换为实际数据返回
 	 * @param beforTransResult
@@ -207,10 +222,11 @@ public class RuleHelper {
 	 * @param data
 	 * @throws Exception
 	 */
-	public static void ExecuteRuleByStack(BigDecimal rootRuleID, Object data, Object local)
+	public static HashMap<BigDecimal, Object> ExecuteRuleByStack(BigDecimal rootRuleID, Object data)
 			throws Exception {
-		//Integer rootRelID = GetRootRuleID(RootRelID);
-		//Integer rootRelID = RootRelID;
+		
+		//返回结果集
+		HashMap<BigDecimal, Object> resultHM = new HashMap<BigDecimal, Object>();
 		
 		Stack<RuleRelData> relDataStack = new Stack<RuleRelData>();
 
@@ -246,12 +262,6 @@ public class RuleHelper {
 		String businessCode = "";
 		String positionDesc = "";
 
-//		String preExprCond = null;
-//		Boolean isResult = false;
-//		String resultDesc = "";
-//		String resultPos = "";
-//		String postExprCond;
-//		
 		Boolean preResult = true;
 		Boolean result = true;
 		Boolean postResult = true;
@@ -265,9 +275,6 @@ public class RuleHelper {
 		//CachedRowSet firstLevelExpr = GetChileExprData(rootRelID);
 		//CachedRowSet rootLevelRelData = GetSingleRelData(rootRuleID);
 		List<RuleRelData> childLevelRule = null;
-		CachedRowSet childExprData = null;
-		CachedRowSet ruleData = null;
-		CachedRowSet postRuleData = null;
 		
 		RuleData rData = new RuleData();
 		RuleRelData rrData = new RuleRelData();
@@ -283,8 +290,6 @@ public class RuleHelper {
 			postRuleDesc = rrData.getPostRuleDesc();
 
 			if (ruleID != null && ruleID != BigDecimal.ZERO) {
-				//ruleData = getSingleRuleData(ruleID);
-				//ruleData.first();
 				rData = getSingleRuleDataByHB(ruleID);
 				
 				ruleDesc  = rData.getRuleDesc();
@@ -316,14 +321,14 @@ public class RuleHelper {
 				positionDesc = rData.getPositionDesc();
 
 				if(!isEmptyString(preRuleCond)){
-					preResult = (Boolean) ExecuteExpr(preRuleCond, data, local);
+					preResult = (Boolean) ExecuteExpr(preRuleCond, data);
 				}else {
 					preResult = true;
 				}
 			}
 
 			if (!isEmptyString(postRuleDesc)) {
-				postResult = (Boolean) ExecuteExpr(postRuleDesc, data, local);
+				postResult = (Boolean) ExecuteExpr(postRuleDesc, data);
 			}else {
 				postResult = true;
 			}
@@ -335,7 +340,7 @@ public class RuleHelper {
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data, local);
+						result = (Boolean) ExecuteExpr(ruleCond, data);
 					}
 					if (result == null) {
 						WriteLog(ruleCond + ";" + ruleDesc + ";" + logDesc + ";result == null");
@@ -346,15 +351,15 @@ public class RuleHelper {
 					if (result) {
 						if (isLog) {
 							if (!isEmptyString(logDesc)) {
-								WriteLog("Log Desc" + GetTransResult(logDesc, data, local));
+								WriteLog("Log Desc" + GetTransResult(logDesc, data));
 							}
 							if (!isEmptyString(positionDesc)) {
-								WriteLog("result_pos:" + GetTransResult(positionDesc, data, local));
+								WriteLog("result_pos:" + GetTransResult(positionDesc, data));
 							}
 						}
 					}
 					if (result && isExit) {
-						return;
+						return resultHM;
 					}
 				} else if (ruleType.equals("2")) {
 					HashMap<String, Object> mapData = (HashMap<String, Object>) data;
@@ -367,12 +372,12 @@ public class RuleHelper {
 					if (loopTempMap.containsKey(ruleID)) {
 						loopData = loopTempMap.get(ruleID);
 					}else {
-						loopData = (List<?>)ExecuteExpr(loopKey, data, local);
+						loopData = (List<?>)ExecuteExpr(loopKey, data);
 					}
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data, local);
+						result = (Boolean) ExecuteExpr(ruleCond, data);
 					}
 					Integer maxCount;
 					Integer currentCount;
@@ -405,7 +410,7 @@ public class RuleHelper {
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data, local);
+						result = (Boolean) ExecuteExpr(ruleCond, data);
 					}
 
 					if (result) {
@@ -419,7 +424,7 @@ public class RuleHelper {
 				relDataStack.pop();
 			}
 		}
-		return;
+		return resultHM;
 	}
 
 	
