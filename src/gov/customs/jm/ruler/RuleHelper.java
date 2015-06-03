@@ -62,7 +62,7 @@ public class RuleHelper {
 	 * @param parentRuleID
 	 * @return
 	 */
-	private static List<RuleRelData> GetChileExprDataByHB(BigDecimal parentRuleID){
+	private static List<RuleRelData> getChileRuleRelDataByHB(BigDecimal parentRuleID){
 		SessionFactory sessionFactory = null;
 		try {
 			sessionFactory= new Configuration().configure()
@@ -269,11 +269,12 @@ public class RuleHelper {
 		/**
 		 * loopCountMap:记录循环节点当前的记录集下表
 		 * loopTempMap:保存循环节点过滤后的记录
+		 * localmap:循环中拆解的对象临时保存在这里
 		 */
 		HashMap<BigDecimal, Integer> loopCountMap = new HashMap<BigDecimal, Integer>();
 		HashMap<BigDecimal, List<?>> loopTempMap = new HashMap<BigDecimal, List<?>>();
-		//CachedRowSet firstLevelExpr = GetChileExprData(rootRelID);
-		//CachedRowSet rootLevelRelData = GetSingleRelData(rootRuleID);
+		HashMap<String, Object> localMap = new HashMap<String, Object>();
+		
 		List<RuleRelData> childLevelRule = null;
 		
 		RuleData rData = new RuleData();
@@ -340,7 +341,7 @@ public class RuleHelper {
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data);
+						result = (Boolean) ExecuteExpr(ruleCond, data, localMap);
 					}
 					if (result == null) {
 						WriteLog(ruleCond + ";" + ruleDesc + ";" + logDesc + ";result == null");
@@ -351,10 +352,10 @@ public class RuleHelper {
 					if (result) {
 						if (isLog) {
 							if (!isEmptyString(logDesc)) {
-								WriteLog("Log Desc" + GetTransResult(logDesc, data));
+								WriteLog("Log Desc" + GetTransResult(logDesc, data, localMap));
 							}
 							if (!isEmptyString(positionDesc)) {
-								WriteLog("result_pos:" + GetTransResult(positionDesc, data));
+								WriteLog("result_pos:" + GetTransResult(positionDesc, data, localMap));
 							}
 						}
 					}
@@ -366,7 +367,7 @@ public class RuleHelper {
 					
 					//List loopData = (List) mapData.get(loopKey);
 					/**
-					 * 如果缓存中存在当前循环节点的结果集，则从缓存中获得
+					 * 如果缓存中存在当前循环节点的结果集，则从缓存中获得，loopkey为filter返回的arraylist
 					 */
 					List<?> loopData;
 					if (loopTempMap.containsKey(ruleID)) {
@@ -391,17 +392,18 @@ public class RuleHelper {
 					}
 
 					if (result && currentCount < maxCount) {
-						mapData.put(execKey,
+						localMap.put(execKey,
 								(Object) loopData.get(currentCount));
-						childLevelRule = GetChileExprDataByHB(parentRuleID);
+						childLevelRule = getChileRuleRelDataByHB(parentRuleID);
 						for (int i = 0; i < childLevelRule.size(); i++) {
 							relDataStack.push(childLevelRule.get(i));
 						}
 						currentCount++;
-						loopCountMap.put(parentRuleID, currentCount);
+						loopCountMap.put(ruleID, currentCount);
 					} else {
 						loopCountMap.remove(ruleID);
 						loopTempMap.remove(ruleID);
+						localMap.remove(execKey);
 						relDataStack.pop();
 					}
 				} else {
@@ -414,7 +416,7 @@ public class RuleHelper {
 					}
 
 					if (result) {
-						childLevelRule = GetChileExprDataByHB(parentRuleID);
+						childLevelRule = getChileRuleRelDataByHB(parentRuleID);
 						for (int i = 0; i < childLevelRule.size(); i++) {
 							relDataStack.push(childLevelRule.get(i));
 						}
