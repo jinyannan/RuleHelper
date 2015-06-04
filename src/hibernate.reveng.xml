@@ -2,10 +2,13 @@
 <!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
 
 <hibernate-reverse-engineering>
-<type-mapping>
-	<sql-type jdbc-type="VARCHAR" hibernate-type="string"></sql-type>
-	<sql-type jdbc-type="VARCHAR" hibernate-type="string"></sql-type>
-</type-mapping>
-<table-filter match-schema="ALLSYS" match-name="RULE_DATA" />
+	<type-mapping>
+		<sql-type jdbc-type="VARCHAR" hibernate-type="string"></sql-type>
+		<sql-type jdbc-type="VARCHAR" hibernate-type="string"></sql-type>
+	</type-mapping>
+	<table-filter match-schema="ALLSYS" match-name="RULE_DATA" />
 	<table-filter match-schema="ALLSYS" match-name="RULE_REL_DATA" />
+	<table-filter match-name="RULE_FEEDBACK_DATA"
+		match-schema="ALLSYS">
+	</table-filter>
 </hibernate-reverse-engineering>

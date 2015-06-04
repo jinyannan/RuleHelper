@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="gov.customs.jm.data.RuleFeedbackData" table="RULE_FEEDBACK_DATA" schema="ALLSYS">
+        <composite-id name="id" class="gov.customs.jm.data.RuleFeedbackDataId">
+            <key-property name="ruleId" type="big_decimal">
+                <column name="RULE_ID" scale="0" />
+            </key-property>
+            <key-property name="isFeedback" type="java.lang.Boolean">
+                <column name="IS_FEEDBACK" precision="1" scale="0" />
+            </key-property>
+            <key-property name="feedbackDesc" type="string">
+                <column name="FEEDBACK_DESC" length="2048" />
+            </key-property>
+            <key-property name="businessCode" type="string">
+                <column name="BUSINESS_CODE" length="16" />
+            </key-property>
+            <key-property name="hitDesc" type="string">
+                <column name="HIT_DESC" length="2048" />
+            </key-property>
+            <key-property name="positionDesc" type="string">
+                <column name="POSITION_DESC" length="2048" />
+            </key-property>
+            <key-property name="entityKeys" type="string">
+                <column name="ENTITY_KEYS" length="2048" />
+            </key-property>
+        </composite-id>
+    </class>
+</hibernate-mapping>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated May 26, 2015 2:43:33 PM by Hibernate Tools 3.4.0.CR1 -->
+<!-- Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
     <class name="gov.customs.jm.data.RuleData" table="RULE_DATA" schema="ALLSYS">
         <id name="ruleId" type="big_decimal">
@@ -50,9 +50,6 @@
         <property name="loopKey" type="string">
             <column name="LOOP_KEY" />
         </property>
-        <property name="loopCond" type="string">
-            <column name="LOOP_COND" length="2048" />
-        </property>
         <property name="execKey" type="string">
             <column name="EXEC_KEY" />
         </property>
@@ -86,8 +83,14 @@
         <property name="businessCode" type="string">
             <column name="BUSINESS_CODE" length="16" />
         </property>
+        <property name="hitDesc" type="string">
+            <column name="HIT_DESC" length="2048" />
+        </property>
         <property name="positionDesc" type="string">
-            <column name="POSITION_DESC" />
+            <column name="POSITION_DESC" length="2048" />
+        </property>
+        <property name="entityKeys" type="string">
+            <column name="ENTITY_KEYS" length="2048" />
         </property>
     </class>
 </hibernate-mapping>

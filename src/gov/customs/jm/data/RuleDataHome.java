@@ -1,6 +1,6 @@
 package gov.customs.jm.data;
 
-// Generated May 26, 2015 2:43:33 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.List;
 import javax.naming.InitialContext;

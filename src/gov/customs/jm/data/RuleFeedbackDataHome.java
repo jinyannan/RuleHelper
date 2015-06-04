@@ -11,13 +11,14 @@ import org.hibernate.SessionFactory;
 import static org.hibernate.criterion.Example.create;
 
 /**
- * Home object for domain model class RuleRelData.
- * @see gov.customs.jm.data.RuleRelData
+ * Home object for domain model class RuleFeedbackData.
+ * @see gov.customs.jm.data.RuleFeedbackData
  * @author Hibernate Tools
  */
-public class RuleRelDataHome {
+public class RuleFeedbackDataHome {
 
-	private static final Log log = LogFactory.getLog(RuleRelDataHome.class);
+	private static final Log log = LogFactory
+			.getLog(RuleFeedbackDataHome.class);
 
 	private final SessionFactory sessionFactory = getSessionFactory();
 
@@ -32,8 +33,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void persist(RuleRelData transientInstance) {
-		log.debug("persisting RuleRelData instance");
+	public void persist(RuleFeedbackData transientInstance) {
+		log.debug("persisting RuleFeedbackData instance");
 		try {
 			sessionFactory.getCurrentSession().persist(transientInstance);
 			log.debug("persist successful");
@@ -43,8 +44,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void attachDirty(RuleRelData instance) {
-		log.debug("attaching dirty RuleRelData instance");
+	public void attachDirty(RuleFeedbackData instance) {
+		log.debug("attaching dirty RuleFeedbackData instance");
 		try {
 			sessionFactory.getCurrentSession().saveOrUpdate(instance);
 			log.debug("attach successful");
@@ -54,8 +55,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void attachClean(RuleRelData instance) {
-		log.debug("attaching clean RuleRelData instance");
+	public void attachClean(RuleFeedbackData instance) {
+		log.debug("attaching clean RuleFeedbackData instance");
 		try {
 			sessionFactory.getCurrentSession().lock(instance, LockMode.NONE);
 			log.debug("attach successful");
@@ -65,8 +66,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void delete(RuleRelData persistentInstance) {
-		log.debug("deleting RuleRelData instance");
+	public void delete(RuleFeedbackData persistentInstance) {
+		log.debug("deleting RuleFeedbackData instance");
 		try {
 			sessionFactory.getCurrentSession().delete(persistentInstance);
 			log.debug("delete successful");
@@ -76,10 +77,10 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public RuleRelData merge(RuleRelData detachedInstance) {
-		log.debug("merging RuleRelData instance");
+	public RuleFeedbackData merge(RuleFeedbackData detachedInstance) {
+		log.debug("merging RuleFeedbackData instance");
 		try {
-			RuleRelData result = (RuleRelData) sessionFactory
+			RuleFeedbackData result = (RuleFeedbackData) sessionFactory
 					.getCurrentSession().merge(detachedInstance);
 			log.debug("merge successful");
 			return result;
@@ -89,12 +90,12 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public RuleRelData findById(gov.customs.jm.data.RuleRelDataId id) {
-		log.debug("getting RuleRelData instance with id: " + id);
+	public RuleFeedbackData findById(gov.customs.jm.data.RuleFeedbackDataId id) {
+		log.debug("getting RuleFeedbackData instance with id: " + id);
 		try {
-			RuleRelData instance = (RuleRelData) sessionFactory
-					.getCurrentSession().get("gov.customs.jm.data.RuleRelData",
-							id);
+			RuleFeedbackData instance = (RuleFeedbackData) sessionFactory
+					.getCurrentSession().get(
+							"gov.customs.jm.data.RuleFeedbackData", id);
 			if (instance == null) {
 				log.debug("get successful, no instance found");
 			} else {
@@ -107,12 +108,12 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public List<RuleRelData> findByExample(RuleRelData instance) {
-		log.debug("finding RuleRelData instance by example");
+	public List<RuleFeedbackData> findByExample(RuleFeedbackData instance) {
+		log.debug("finding RuleFeedbackData instance by example");
 		try {
-			List<RuleRelData> results = (List<RuleRelData>) sessionFactory
+			List<RuleFeedbackData> results = (List<RuleFeedbackData>) sessionFactory
 					.getCurrentSession()
-					.createCriteria("gov.customs.jm.data.RuleRelData")
+					.createCriteria("gov.customs.jm.data.RuleFeedbackData")
 					.add(create(instance)).list();
 			log.debug("find by example successful, result size: "
 					+ results.size());

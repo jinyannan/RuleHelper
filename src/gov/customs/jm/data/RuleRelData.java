@@ -1,6 +1,6 @@
 package gov.customs.jm.data;
 
-// Generated May 26, 2015 2:43:33 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1
 
 import java.math.BigDecimal;
 
@@ -12,6 +12,7 @@ public class RuleRelData implements java.io.Serializable {
 	private RuleRelDataId id;
 	private String postRuleDesc;
 	private BigDecimal ruleOrder;
+	private String entityKeys;
 
 	public RuleRelData() {
 	}
@@ -21,10 +22,11 @@ public class RuleRelData implements java.io.Serializable {
 	}
 
 	public RuleRelData(RuleRelDataId id, String postRuleDesc,
-			BigDecimal ruleOrder) {
+			BigDecimal ruleOrder, String entityKeys) {
 		this.id = id;
 		this.postRuleDesc = postRuleDesc;
 		this.ruleOrder = ruleOrder;
+		this.entityKeys = entityKeys;
 	}
 
 	public RuleRelDataId getId() {
@@ -49,6 +51,14 @@ public class RuleRelData implements java.io.Serializable {
 
 	public void setRuleOrder(BigDecimal ruleOrder) {
 		this.ruleOrder = ruleOrder;
+	}
+
+	public String getEntityKeys() {
+		return this.entityKeys;
+	}
+
+	public void setEntityKeys(String entityKeys) {
+		this.entityKeys = entityKeys;
 	}
 
 }

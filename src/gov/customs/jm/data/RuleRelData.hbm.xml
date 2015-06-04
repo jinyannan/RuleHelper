@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated May 26, 2015 2:43:33 PM by Hibernate Tools 3.4.0.CR1 -->
+<!-- Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
     <class name="gov.customs.jm.data.RuleRelData" table="RULE_REL_DATA" schema="ALLSYS">
         <composite-id name="id" class="gov.customs.jm.data.RuleRelDataId">
@@ -17,6 +17,9 @@
         </property>
         <property name="ruleOrder" type="big_decimal">
             <column name="RULE_ORDER" scale="0" />
+        </property>
+        <property name="entityKeys" type="string">
+            <column name="ENTITY_KEYS" length="2048" />
         </property>
     </class>
 </hibernate-mapping>

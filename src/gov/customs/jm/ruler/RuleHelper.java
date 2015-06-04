@@ -306,7 +306,7 @@ public class RuleHelper {
 				feedBackDesc = rData.getFeedbackDesc();
 				ruleType = rData.getRuleType();
 				loopKey = rData.getLoopKey();
-				loopCond = rData.getLoopCond();
+				//loopCond = rData.getLoopCond();
 				execKey = rData.getExecKey();
 				ruleStatus = rData.getRuleStatus();
 				effectiveDate = (Date) rData.getEffectiveDate();

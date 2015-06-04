@@ -1,6 +1,6 @@
 package gov.customs.jm.data;
 
-// Generated May 26, 2015 2:43:33 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,7 +25,6 @@ public class RuleData implements java.io.Serializable {
 	private String feedbackDesc;
 	private String ruleType;
 	private String loopKey;
-	private String loopCond;
 	private String execKey;
 	private String ruleStatus;
 	private Date effectiveDate;
@@ -37,7 +36,9 @@ public class RuleData implements java.io.Serializable {
 	private String customsCode;
 	private String note;
 	private String businessCode;
+	private String hitDesc;
 	private String positionDesc;
+	private String entityKeys;
 
 	public RuleData() {
 	}
@@ -50,11 +51,11 @@ public class RuleData implements java.io.Serializable {
 			String ruleCond, String postRuleCond, Boolean isExit,
 			Boolean isLog, String logDesc, Boolean isEstimate, Boolean isShere,
 			Boolean isFeedback, String feedbackDesc, String ruleType,
-			String loopKey, String loopCond, String execKey, String ruleStatus,
+			String loopKey, String execKey, String ruleStatus,
 			Date effectiveDate, String serviceDomain, String belongSys,
 			String category, String createPerson, String scene,
 			String customsCode, String note, String businessCode,
-			String positionDesc) {
+			String hitDesc, String positionDesc, String entityKeys) {
 		this.ruleId = ruleId;
 		this.ruleDesc = ruleDesc;
 		this.preRuleCond = preRuleCond;
@@ -69,7 +70,6 @@ public class RuleData implements java.io.Serializable {
 		this.feedbackDesc = feedbackDesc;
 		this.ruleType = ruleType;
 		this.loopKey = loopKey;
-		this.loopCond = loopCond;
 		this.execKey = execKey;
 		this.ruleStatus = ruleStatus;
 		this.effectiveDate = effectiveDate;
@@ -81,7 +81,9 @@ public class RuleData implements java.io.Serializable {
 		this.customsCode = customsCode;
 		this.note = note;
 		this.businessCode = businessCode;
+		this.hitDesc = hitDesc;
 		this.positionDesc = positionDesc;
+		this.entityKeys = entityKeys;
 	}
 
 	public BigDecimal getRuleId() {
@@ -204,14 +206,6 @@ public class RuleData implements java.io.Serializable {
 		this.loopKey = loopKey;
 	}
 
-	public String getLoopCond() {
-		return this.loopCond;
-	}
-
-	public void setLoopCond(String loopCond) {
-		this.loopCond = loopCond;
-	}
-
 	public String getExecKey() {
 		return this.execKey;
 	}
@@ -300,12 +294,28 @@ public class RuleData implements java.io.Serializable {
 		this.businessCode = businessCode;
 	}
 
+	public String getHitDesc() {
+		return this.hitDesc;
+	}
+
+	public void setHitDesc(String hitDesc) {
+		this.hitDesc = hitDesc;
+	}
+
 	public String getPositionDesc() {
 		return this.positionDesc;
 	}
 
 	public void setPositionDesc(String positionDesc) {
 		this.positionDesc = positionDesc;
+	}
+
+	public String getEntityKeys() {
+		return this.entityKeys;
+	}
+
+	public void setEntityKeys(String entityKeys) {
+		this.entityKeys = entityKeys;
 	}
 
 }
