@@ -13,12 +13,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.sql.rowset.CachedRowSet;
+
 import org.antlr.ext.ConditionExpression.Expression;
 import org.antlr.ext.ConditionExpression.Visitor.IGetValue;
 import org.hibernate.HibernateException;
@@ -26,8 +29,10 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.sun.xml.internal.bind.v2.schemagen.xmlschema.LocalAttribute;
+
 import gov.customs.jm.data.*;
 import ExpressionHelper.EntryHelper;
 
@@ -71,7 +76,7 @@ public class RuleHelper {
 			e.printStackTrace();
 		}
 		Session s = sessionFactory.openSession();
-		Query queryRuleRelData = s.createSQLQuery("select * from RULE_REL_DATA where PARENT_RULE_ID = " + parentRuleID).addEntity(RuleRelData.class);
+		Query queryRuleRelData = s.createSQLQuery("select * from RULE_REL_DATA where PARENT_RULE_ID = " + parentRuleID + "order by rule_order desc").addEntity(RuleRelData.class);
 		List<RuleRelData> listRuleRelData = queryRuleRelData.list();
 		return listRuleRelData;
 	}
@@ -108,7 +113,43 @@ public class RuleHelper {
 	private static Object ExecuteExpr(String exprCond, Object data, Object local) {
 		return new Expression().ExecuteExpression(exprCond, data, local);
 	}
-
+	/**
+	 * 计算表达式，并根据标示，决定是否写日志和反馈
+	 * @param ruleData
+	 * @param data
+	 * @param local
+	 * @param feedback
+	 * @return
+	 */
+	private static Object ExecuteExpr (RuleData ruleData, Object data, Object local, ArrayList<String[]> feedback) 
+						throws Exception{
+		String ruleCond = ruleData.getRuleCond();
+		Boolean isLog = Boolean.valueOf(ruleData.getIsLog());
+		
+		Boolean isEstimate = Boolean.valueOf(ruleData.getIsEstimate());
+		Boolean result = (Boolean) ExecuteExpr(ruleCond, data, local);
+		
+		BigDecimal ruleId = ruleData.getRuleId();
+		Boolean isFeedBack = Boolean.valueOf(ruleData.getIsFeedback());
+		String feedbackDesc = GetTransResult(ruleData.getFeedbackDesc(), data, local) ;
+		String businessCode = ruleData.getBusinessCode();
+		String hitDesc = GetTransResult(ruleData.getHitDesc(), data, local) ;
+		String positionDesc = GetTransResult(ruleData.getPositionDesc(), data, local);
+		
+		String feedbackArray[] = new String[] {String.valueOf(ruleId),String.valueOf(isFeedBack),
+									feedbackDesc, businessCode, hitDesc, positionDesc};
+		if (result) {
+			if (isLog) {
+				WriteLog(ruleCond);
+			}
+			if (isFeedBack) {
+				feedback.add(feedbackArray);
+			}
+		}
+		return result;
+		
+	}
+	
 	/**
 	 * 根据表达式和传入的数据，运算表达式
 	 * @param exprCond
@@ -222,12 +263,9 @@ public class RuleHelper {
 	 * @param data
 	 * @throws Exception
 	 */
-	public static HashMap<BigDecimal, Object> ExecuteRuleByStack(BigDecimal rootRuleID, Object data)
+	public static ArrayList<String[]> ExecuteRuleByStack(BigDecimal rootRuleID, Object data)
 			throws Exception {
-		
-		//返回结果集
-		HashMap<BigDecimal, Object> resultHM = new HashMap<BigDecimal, Object>();
-		
+
 		Stack<RuleRelData> relDataStack = new Stack<RuleRelData>();
 
 		BigDecimal parentRuleID;
@@ -274,6 +312,7 @@ public class RuleHelper {
 		HashMap<BigDecimal, Integer> loopCountMap = new HashMap<BigDecimal, Integer>();
 		HashMap<BigDecimal, List<?>> loopTempMap = new HashMap<BigDecimal, List<?>>();
 		HashMap<String, Object> localMap = new HashMap<String, Object>();
+		ArrayList<String[]> feedbackArrayList  = new ArrayList<String[]>();
 		
 		List<RuleRelData> childLevelRule = null;
 		
@@ -341,31 +380,17 @@ public class RuleHelper {
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data, localMap);
+						result = (Boolean) ExecuteExpr(rData, data, (Object)localMap, feedbackArrayList);
 					}
 					if (result == null) {
 						WriteLog(ruleCond + ";" + ruleDesc + ";" + logDesc + ";result == null");
 						result = false;
 					}
-					WriteLog(ruleID + ";" + ruleCond + ";");
-					//当result 为true，并且islog为true，记录日志
-					if (result) {
-						if (isLog) {
-							if (!isEmptyString(logDesc)) {
-								WriteLog("Log Desc" + GetTransResult(logDesc, data, localMap));
-							}
-							if (!isEmptyString(positionDesc)) {
-								WriteLog("result_pos:" + GetTransResult(positionDesc, data, localMap));
-							}
-						}
-					}
 					if (result && isExit) {
-						return resultHM;
+						return feedbackArrayList;
 					}
 				} else if (ruleType.equals("2")) {
-					HashMap<String, Object> mapData = (HashMap<String, Object>) data;
-					
-					//List loopData = (List) mapData.get(loopKey);
+
 					/**
 					 * 如果缓存中存在当前循环节点的结果集，则从缓存中获得，loopkey为filter返回的arraylist
 					 */
@@ -412,7 +437,7 @@ public class RuleHelper {
 					if (isEmptyString(ruleCond)) {
 						result = true;
 					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data);
+						result = (Boolean) ExecuteExpr(ruleCond, data ,(Object)localMap);
 					}
 
 					if (result) {
@@ -426,7 +451,7 @@ public class RuleHelper {
 				relDataStack.pop();
 			}
 		}
-		return resultHM;
+		return feedbackArrayList;
 	}
 
 	
