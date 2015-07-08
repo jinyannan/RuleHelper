@@ -1,6 +1,6 @@
 package gov.customs.jm.data;
 
-// Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jul 7, 2015 1:51:03 PM by Hibernate Tools 3.4.0.CR1
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -11,25 +11,24 @@ import java.util.Date;
 public class RuleData implements java.io.Serializable {
 
 	private BigDecimal ruleId;
-	private BigDecimal version;
-	private String ruleDesc;
+	private String ruleName;
 	private String preRuleCond;
 	private String ruleCond;
-	private String postRuleCond;
+	private String postRuleAction;
 	private Boolean isExit;
 	private Boolean isLog;
 	private String logDesc;
 	private Boolean isEstimate;
-	private Boolean isShere;
+	private Boolean isShare;
 	private Boolean isFeedback;
-	private String feedbackDesc;
 	private String ruleType;
-	private String loopKey;
+	private String loopCond;
 	private String execKey;
 	private String ruleStatus;
 	private Date effectiveDate;
-	private String serviceDomain;
-	private String belongSys;
+	private BigDecimal ruleVersion;
+	private BigDecimal serviceDomain;
+	private BigDecimal ownerSys;
 	private String category;
 	private String createPerson;
 	private String scene;
@@ -47,34 +46,34 @@ public class RuleData implements java.io.Serializable {
 		this.ruleId = ruleId;
 	}
 
-	public RuleData(BigDecimal ruleId, String ruleDesc, String preRuleCond,
-			String ruleCond, String postRuleCond, Boolean isExit,
-			Boolean isLog, String logDesc, Boolean isEstimate, Boolean isShere,
-			Boolean isFeedback, String feedbackDesc, String ruleType,
-			String loopKey, String execKey, String ruleStatus,
-			Date effectiveDate, String serviceDomain, String belongSys,
-			String category, String createPerson, String scene,
-			String customsCode, String note, String businessCode,
+	public RuleData(BigDecimal ruleId, String ruleName, String preRuleCond,
+			String ruleCond, String postRuleAction, Boolean isExit,
+			Boolean isLog, String logDesc, Boolean isEstimate, Boolean isShare,
+			Boolean isFeedback, String ruleType, String loopCond,
+			String execKey, String ruleStatus, Date effectiveDate,
+			BigDecimal ruleVersion, BigDecimal serviceDomain,
+			BigDecimal ownerSys, String category, String createPerson,
+			String scene, String customsCode, String note, String businessCode,
 			String hitDesc, String positionDesc, String entityKeys) {
 		this.ruleId = ruleId;
-		this.ruleDesc = ruleDesc;
+		this.ruleName = ruleName;
 		this.preRuleCond = preRuleCond;
 		this.ruleCond = ruleCond;
-		this.postRuleCond = postRuleCond;
+		this.postRuleAction = postRuleAction;
 		this.isExit = isExit;
 		this.isLog = isLog;
 		this.logDesc = logDesc;
 		this.isEstimate = isEstimate;
-		this.isShere = isShere;
+		this.isShare = isShare;
 		this.isFeedback = isFeedback;
-		this.feedbackDesc = feedbackDesc;
 		this.ruleType = ruleType;
-		this.loopKey = loopKey;
+		this.loopCond = loopCond;
 		this.execKey = execKey;
 		this.ruleStatus = ruleStatus;
 		this.effectiveDate = effectiveDate;
+		this.ruleVersion = ruleVersion;
 		this.serviceDomain = serviceDomain;
-		this.belongSys = belongSys;
+		this.ownerSys = ownerSys;
 		this.category = category;
 		this.createPerson = createPerson;
 		this.scene = scene;
@@ -94,20 +93,12 @@ public class RuleData implements java.io.Serializable {
 		this.ruleId = ruleId;
 	}
 
-	public BigDecimal getVersion() {
-		return this.version;
+	public String getRuleName() {
+		return this.ruleName;
 	}
 
-	public void setVersion(BigDecimal version) {
-		this.version = version;
-	}
-
-	public String getRuleDesc() {
-		return this.ruleDesc;
-	}
-
-	public void setRuleDesc(String ruleDesc) {
-		this.ruleDesc = ruleDesc;
+	public void setRuleName(String ruleName) {
+		this.ruleName = ruleName;
 	}
 
 	public String getPreRuleCond() {
@@ -126,12 +117,12 @@ public class RuleData implements java.io.Serializable {
 		this.ruleCond = ruleCond;
 	}
 
-	public String getPostRuleCond() {
-		return this.postRuleCond;
+	public String getPostRuleAction() {
+		return this.postRuleAction;
 	}
 
-	public void setPostRuleCond(String postRuleCond) {
-		this.postRuleCond = postRuleCond;
+	public void setPostRuleAction(String postRuleAction) {
+		this.postRuleAction = postRuleAction;
 	}
 
 	public Boolean getIsExit() {
@@ -166,12 +157,12 @@ public class RuleData implements java.io.Serializable {
 		this.isEstimate = isEstimate;
 	}
 
-	public Boolean getIsShere() {
-		return this.isShere;
+	public Boolean getIsShare() {
+		return this.isShare;
 	}
 
-	public void setIsShere(Boolean isShere) {
-		this.isShere = isShere;
+	public void setIsShare(Boolean isShare) {
+		this.isShare = isShare;
 	}
 
 	public Boolean getIsFeedback() {
@@ -182,14 +173,6 @@ public class RuleData implements java.io.Serializable {
 		this.isFeedback = isFeedback;
 	}
 
-	public String getFeedbackDesc() {
-		return this.feedbackDesc;
-	}
-
-	public void setFeedbackDesc(String feedbackDesc) {
-		this.feedbackDesc = feedbackDesc;
-	}
-
 	public String getRuleType() {
 		return this.ruleType;
 	}
@@ -198,12 +181,12 @@ public class RuleData implements java.io.Serializable {
 		this.ruleType = ruleType;
 	}
 
-	public String getLoopKey() {
-		return this.loopKey;
+	public String getLoopCond() {
+		return this.loopCond;
 	}
 
-	public void setLoopKey(String loopKey) {
-		this.loopKey = loopKey;
+	public void setLoopCond(String loopCond) {
+		this.loopCond = loopCond;
 	}
 
 	public String getExecKey() {
@@ -230,20 +213,28 @@ public class RuleData implements java.io.Serializable {
 		this.effectiveDate = effectiveDate;
 	}
 
-	public String getServiceDomain() {
+	public BigDecimal getRuleVersion() {
+		return this.ruleVersion;
+	}
+
+	public void setRuleVersion(BigDecimal ruleVersion) {
+		this.ruleVersion = ruleVersion;
+	}
+
+	public BigDecimal getServiceDomain() {
 		return this.serviceDomain;
 	}
 
-	public void setServiceDomain(String serviceDomain) {
+	public void setServiceDomain(BigDecimal serviceDomain) {
 		this.serviceDomain = serviceDomain;
 	}
 
-	public String getBelongSys() {
-		return this.belongSys;
+	public BigDecimal getOwnerSys() {
+		return this.ownerSys;
 	}
 
-	public void setBelongSys(String belongSys) {
-		this.belongSys = belongSys;
+	public void setOwnerSys(BigDecimal ownerSys) {
+		this.ownerSys = ownerSys;
 	}
 
 	public String getCategory() {

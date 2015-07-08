@@ -1,6 +1,6 @@
 package gov.customs.jm.data;
 
-// Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jul 7, 2015 1:51:04 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.List;
 import javax.naming.InitialContext;
@@ -89,7 +89,7 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public RuleRelData findById(gov.customs.jm.data.RuleRelDataId id) {
+	public RuleRelData findById(java.math.BigDecimal id) {
 		log.debug("getting RuleRelData instance with id: " + id);
 		try {
 			RuleRelData instance = (RuleRelData) sessionFactory

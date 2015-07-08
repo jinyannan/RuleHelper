@@ -23,30 +23,34 @@ import java.util.regex.Pattern;
 import javax.sql.rowset.CachedRowSet;
 
 import org.antlr.ext.ConditionExpression.Expression;
-import org.antlr.ext.ConditionExpression.Visitor.IGetValue;
+import org.antlr.ext.ConditionExpression.Utility.IGetValue;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import sun.org.mozilla.javascript.internal.ObjArray;
+
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.sun.xml.internal.bind.v2.schemagen.xmlschema.LocalAttribute;
 
-import gov.customs.jm.data.*;
+import gov.customs.jm.data.RuleData;
+import gov.customs.jm.data.RuleFeedback;
+import gov.customs.jm.data.RuleRelData;
 import ExpressionHelper.EntryHelper;
 
-
 public class RuleHelper {
-	
-	private static Boolean isGo = true;
-	
+
+	private Boolean isGo = true;
+
 	/**
 	 * 判断是否合法日期
+	 * 
 	 * @param str
 	 * @return
 	 */
-	private static boolean isValidDate(String str) {
+	private boolean isValidDate(String str) {
 		boolean convertSuccess = false;
 		SimpleDateFormat[] formats = { new SimpleDateFormat("yyyy-MM-dd"),
 				new SimpleDateFormat("yyyy/MM/dd") };
@@ -64,108 +68,151 @@ public class RuleHelper {
 
 	/**
 	 * 根据父节点返回子节点list
+	 * 
 	 * @param parentRuleID
 	 * @return
 	 */
-	private static List<RuleRelData> getChileRuleRelDataByHB(BigDecimal parentRuleID){
+	private List<RuleRelData> getChileRuleRelDataByHB(BigDecimal parentRuleID) {
 		SessionFactory sessionFactory = null;
 		try {
-			sessionFactory= new Configuration().configure()
+			sessionFactory = new Configuration().configure()
 					.buildSessionFactory();
 		} catch (HibernateException e) {
 			e.printStackTrace();
 		}
 		Session s = sessionFactory.openSession();
-		Query queryRuleRelData = s.createSQLQuery("select * from RULE_REL_DATA where PARENT_RULE_ID = " + parentRuleID + "order by rule_order desc").addEntity(RuleRelData.class);
+		Query queryRuleRelData = s.createSQLQuery(
+				"select * from RULE_REL_DATA where PARENT_RULE_ID = "
+						+ parentRuleID + "order by rule_order desc").addEntity(
+				RuleRelData.class);
 		List<RuleRelData> listRuleRelData = queryRuleRelData.list();
-		return listRuleRelData;
+		if (listRuleRelData.size() > 0) {
+			return listRuleRelData;
+		} else {
+			return null;
+		}
 	}
-	
+
 	/**
 	 * 使用hibernate，根据rule_id，查找rule_rel_data中相应记录。
+	 * 
 	 * @param ruleID
 	 * @return
 	 */
-	private static RuleRelData GetSingleRelDataByHB(BigDecimal ruleID){
-		RuleRelData rrd = new RuleRelData();
-		RuleRelDataId rrdid = new RuleRelDataId();
-		rrdid.setRuleId(ruleID);
-		rrd.setId(rrdid);
-		return new RuleRelDataHome().findByExample(rrd).get(0);
+	private RuleRelData getSingleRelDataByHB(BigDecimal relId) {
+		String sql = "select * from RULE_REL_DATA where rel_id = " + relId;
+		Query query = getSessionFactory().createSQLQuery(sql).addEntity(
+				RuleRelData.class);
+		List<RuleRelData> list = query.list();
+		if (list.size() == 1) {
+			return list.get(0);
+		} else {
+			return null;
+		}
 	}
-	
+
 	/**
 	 * 根据ruleid，查找rule_data中相应记录
+	 * 
 	 * @param ruleID
 	 * @return
 	 */
-	private static RuleData getSingleRuleDataByHB(BigDecimal ruleID){
-		return (new RuleDataHome().findById(ruleID));
+	private RuleData getSingleRuleDataByHB(BigDecimal ruleID) {
+
+		String sql = "select * from RULE_DATA where rule_id = " + ruleID;
+		Query query = getSessionFactory().createSQLQuery(sql).addEntity(
+				RuleData.class);
+		List<RuleData> list = query.list();
+		if (list.size() == 1) {
+			return (RuleData) list.get(0);
+		} else {
+			return null;
+		}
 	}
-	
+
+	/**
+	 * 
+	 * @return
+	 */
+	private Session getSessionFactory() {
+		SessionFactory sessionFactory = null;
+		try {
+			sessionFactory = new Configuration().configure()
+					.buildSessionFactory();
+		} catch (HibernateException e) {
+			e.printStackTrace();
+		}
+		return sessionFactory.openSession();
+	}
+
 	/**
 	 * 根据表达式和传入的数据，运算表达式
+	 * 
 	 * @param exprCond
 	 * @param data
 	 * @param local
 	 * @return
 	 */
-	private static Object ExecuteExpr(String exprCond, Object data, Object local) {
+	private Object ExecuteExpr(String exprCond, Object data, Object local) {
 		return new Expression().ExecuteExpression(exprCond, data, local);
 	}
+
 	/**
 	 * 计算表达式，并根据标示，决定是否写日志和反馈
+	 * 
 	 * @param ruleData
 	 * @param data
 	 * @param local
 	 * @param feedback
 	 * @return
 	 */
-	private static Object ExecuteExpr (RuleData ruleData, Object data, Object local, ArrayList<String[]> feedback) 
-						throws Exception{
+	private Object executeExpr(RuleData ruleData, Object data, Object local,
+			ArrayList<RuleFeedback> feedback) throws Exception {
 		String ruleCond = ruleData.getRuleCond();
 		Boolean isLog = Boolean.valueOf(ruleData.getIsLog());
-		
+
 		Boolean isEstimate = Boolean.valueOf(ruleData.getIsEstimate());
 		Boolean result = (Boolean) ExecuteExpr(ruleCond, data, local);
-		
+
 		BigDecimal ruleId = ruleData.getRuleId();
 		Boolean isFeedBack = Boolean.valueOf(ruleData.getIsFeedback());
-		String feedbackDesc = GetTransResult(ruleData.getFeedbackDesc(), data, local) ;
 		String businessCode = ruleData.getBusinessCode();
-		String hitDesc = GetTransResult(ruleData.getHitDesc(), data, local) ;
-		String positionDesc = GetTransResult(ruleData.getPositionDesc(), data, local);
-		
-		String feedbackArray[] = new String[] {String.valueOf(ruleId),String.valueOf(isFeedBack),
-									feedbackDesc, businessCode, hitDesc, positionDesc};
+		String hitDesc = GetTransResult(ruleData.getHitDesc(), data, local);
+		String positionDesc = GetTransResult(ruleData.getPositionDesc(), data,
+				local);
+
+		RuleFeedback feed = new RuleFeedback(ruleId, isFeedBack, businessCode,
+				hitDesc, positionDesc);
 		if (result) {
 			if (isLog) {
 				WriteLog(ruleCond);
 			}
 			if (isFeedBack) {
-				feedback.add(feedbackArray);
+				feedback.add(feed);
 			}
 		}
 		return result;
-		
+
 	}
-	
+
 	/**
 	 * 根据表达式和传入的数据，运算表达式
+	 * 
 	 * @param exprCond
 	 * @param data
 	 * @return
 	 */
-	private static Object ExecuteExpr(String exprCond, Object data) {
+	private Object ExecuteExpr(String exprCond, Object data) {
 		return ExecuteExpr(exprCond, data, null);
 	}
-	
+
 	/**
-	 *  首字母大写 
+	 * 首字母大写
+	 * 
 	 * @param s
 	 * @return
 	 */
-	private static String toUpperCaseFirstOne(String s) {
+	private String toUpperCaseFirstOne(String s) {
 		if (Character.isUpperCase(s.charAt(0)))
 			return s;
 		else
@@ -176,10 +223,11 @@ public class RuleHelper {
 
 	/**
 	 * 将列名转换为方法名
+	 * 
 	 * @param s
 	 * @return
 	 */
-	private static String colToMethodName(String s) {
+	private String colToMethodName(String s) {
 		String[] strs = s.toLowerCase().split("_");
 		String result = "";
 		for (int i = 0; i < strs.length; i++) {
@@ -187,33 +235,36 @@ public class RuleHelper {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * 判断字符串是否为空
+	 * 
 	 * @param str
 	 * @return
 	 */
-	private static boolean isEmptyString(String str)
-    {
-        return str == null || str.trim().length() == 0;
-    }
+	private boolean isEmptyString(String str) {
+		return str == null || str.trim().length() == 0;
+	}
 
 	/**
 	 * 写日志
+	 * 
 	 * @param str
 	 * @throws IOException
 	 */
-	private static void WriteLog(String str) throws IOException {
+	private void WriteLog(String str) throws IOException {
 		FileWriter writer = null;
 
-		File file = new File("//Users//yannan//Documents//antlr-new//expr_result.log");
+		File file = new File(
+				"//Users//yannan//Documents//antlr-new//expr_result.log");
 		if (!file.exists()) {
 			file.createNewFile();
 		}
 		try {
 			// 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
 			writer = new FileWriter(
-					"//Users//yannan//Documents//antlr-new//expr_result.log", true);
+					"//Users//yannan//Documents//antlr-new//expr_result.log",
+					true);
 			writer.write(str + "\n");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -228,51 +279,62 @@ public class RuleHelper {
 		}
 	}
 
-	private static String GetTransResult(String beforTransResult, Object data) {
+	private String GetTransResult(String beforTransResult, Object data) {
 		return GetTransResult(beforTransResult, data, null);
 	}
-	
+
 	/**
 	 * 将结果中的表达式部分转换为实际数据返回
+	 * 
 	 * @param beforTransResult
 	 * @param data
 	 * @return
 	 */
-	private static String GetTransResult(String beforTransResult, Object data, Object local) {
+	private String GetTransResult(String beforTransResult, Object data,
+			Object local) {
+		if (beforTransResult == null || beforTransResult.trim().equals("")) {
+			return "";
+		}
 		String regex = "(?<=\\{)[^{}]+(?=\\})";
-		//beforeResult = "报关单号为{$PRI_LIST.G_NO},G_NO为{$PRI_HEAD.G_TYPE}数据出现错误";
+		// beforeResult = "报关单号为{$PRI_LIST.G_NO},G_NO为{$PRI_HEAD.G_TYPE}数据出现错误";
 		Pattern pat = Pattern.compile(regex);
 		Matcher matcher = pat.matcher(beforTransResult);
 		String afterTransResult = "";
 		int location = 0;
 		String result = "";
+		
 		while (matcher.find()) {
-			String temp = beforTransResult.substring(matcher.start(), matcher.end());
+			String temp = beforTransResult.substring(matcher.start(),
+					matcher.end());
 			result = String.valueOf(ExecuteExpr(temp, data, local));
-			afterTransResult += beforTransResult.substring(location, matcher.start()) + result;
+			afterTransResult += beforTransResult.substring(location,
+					matcher.start())
+					+ result;
 			location = matcher.end();
 		}
-		afterTransResult += beforTransResult.substring(location, beforTransResult.length());
-		//System.out.println(afterTransResult);
+		afterTransResult += beforTransResult.substring(location,
+				beforTransResult.length());
 		return afterTransResult;
 	}
-	
+
 	/**
 	 * 根据传入的节点值拆分逻辑树，计算分别代表的规则
+	 * 
 	 * @param rootRuleID
 	 * @param data
 	 * @throws Exception
 	 */
-	public static ArrayList<String[]> ExecuteRuleByStack(BigDecimal rootRuleID, Object data)
-			throws Exception {
+	@SuppressWarnings({ "unused" })
+	public ArrayList<RuleFeedback> executeRuleByStack(BigDecimal rootRuleID,
+			Object data) throws Exception {
 
 		Stack<RuleRelData> relDataStack = new Stack<RuleRelData>();
 
 		BigDecimal parentRuleID;
 		BigDecimal ruleID;
 		String postRuleDesc;
-		
-		String ruleDesc  = "";
+
+		String ruleDesc = "";
 		String preRuleCond = "";
 		String ruleCond = "";
 		String postRuleCond = "";
@@ -283,15 +345,15 @@ public class RuleHelper {
 		Boolean isShare = null;
 		Boolean isFeedBack = null;
 		String feedBackDesc = "";
-		String ruleType = ""; //0:leaf node 1:branch node 2:loop node
+		String ruleType = ""; // 0:leaf node 1:branch node 2:loop node
 		String loopKey = "";
 		String loopCond = "";
 		String execKey = "";
 		String ruleStatus = null;
 		Date effectiveDate = null;
 		BigDecimal version = null;
-		String serviceDomain = "";
-		String belongSys = "";
+		BigDecimal serviceDomain = null;
+		BigDecimal belongSys = null;
 		String category = "";
 		String createPerson = "";
 		String scene = "";
@@ -303,55 +365,54 @@ public class RuleHelper {
 		Boolean preResult = true;
 		Boolean result = true;
 		Boolean postResult = true;
-		
+
 		/**
-		 * loopCountMap:记录循环节点当前的记录集下表
-		 * loopTempMap:保存循环节点过滤后的记录
+		 * loopCountMap:记录循环节点当前的记录集下表 loopTempMap:保存循环节点过滤后的记录
 		 * localmap:循环中拆解的对象临时保存在这里
 		 */
 		HashMap<BigDecimal, Integer> loopCountMap = new HashMap<BigDecimal, Integer>();
 		HashMap<BigDecimal, List<?>> loopTempMap = new HashMap<BigDecimal, List<?>>();
 		HashMap<String, Object> localMap = new HashMap<String, Object>();
-		ArrayList<String[]> feedbackArrayList  = new ArrayList<String[]>();
-		
+		ArrayList<RuleFeedback> feedbackArrayList = new ArrayList<RuleFeedback>();
+
 		List<RuleRelData> childLevelRule = null;
-		
+
 		RuleData rData = new RuleData();
 		RuleRelData rrData = new RuleRelData();
-		
-		RuleRelData rootLevelRelDataList = GetSingleRelDataByHB(rootRuleID);
+
+		RuleRelData rootLevelRelDataList = getSingleRelDataByHB(rootRuleID);
 		relDataStack.push(rootLevelRelDataList);
 
 		while (!relDataStack.empty()) {
 			rrData = relDataStack.peek();
-			
-			parentRuleID = rrData.getId().getParentRuleId();
-			ruleID = rrData.getId().getRuleId();
-			postRuleDesc = rrData.getPostRuleDesc();
+
+			parentRuleID = rrData.getParentRuleId();
+			ruleID = rrData.getRuleId();
+			postRuleDesc = rrData.getPostRuleCond();
 
 			if (ruleID != null && ruleID != BigDecimal.ZERO) {
 				rData = getSingleRuleDataByHB(ruleID);
-				
-				ruleDesc  = rData.getRuleDesc();
+
+				ruleDesc = rData.getRuleCond();
 				preRuleCond = rData.getPreRuleCond();
 				ruleCond = rData.getRuleCond();
-				postRuleCond = rData.getPostRuleCond();
+				postRuleCond = rData.getPostRuleAction();
 				isExit = rData.getIsExit();
 				isLog = rData.getIsLog();
 				logDesc = rData.getLogDesc();
 				isEstimate = rData.getIsEstimate();
-				isShare = rData.getIsShere();
+				isShare = rData.getIsShare();
 				isFeedBack = rData.getIsFeedback();
-				feedBackDesc = rData.getFeedbackDesc();
+				// feedBackDesc = rData.getFeedbackD();
 				ruleType = rData.getRuleType();
-				loopKey = rData.getLoopKey();
-				//loopCond = rData.getLoopCond();
+				loopKey = rData.getLoopCond();
+				// loopCond = rData.getLoopCond();
 				execKey = rData.getExecKey();
 				ruleStatus = rData.getRuleStatus();
 				effectiveDate = (Date) rData.getEffectiveDate();
-				version = rData.getVersion();
+				version = rData.getRuleVersion();
 				serviceDomain = rData.getServiceDomain();
-				belongSys = rData.getBelongSys();
+				belongSys = rData.getOwnerSys();
 				category = rData.getCategory();
 				createPerson = rData.getCreatePerson();
 				scene = rData.getScene();
@@ -360,30 +421,32 @@ public class RuleHelper {
 				businessCode = rData.getBusinessCode();
 				positionDesc = rData.getPositionDesc();
 
-				if(!isEmptyString(preRuleCond)){
+				if (!isEmptyString(preRuleCond)) {
 					preResult = (Boolean) ExecuteExpr(preRuleCond, data);
-				}else {
+				} else {
 					preResult = true;
 				}
 			}
 
 			if (!isEmptyString(postRuleDesc)) {
 				postResult = (Boolean) ExecuteExpr(postRuleDesc, data);
-			}else {
+			} else {
 				postResult = true;
 			}
-			
+
 			if (preResult && postResult) {
-				//叶节点 ruletype == 0
+				// 叶节点 ruletype == 0
 				if (ruleType.equals("0")) {
 					relDataStack.pop();
 					if (isEmptyString(ruleCond)) {
 						result = true;
-					}else {
-						result = (Boolean) ExecuteExpr(rData, data, (Object)localMap, feedbackArrayList);
+					} else {
+						result = (Boolean) executeExpr(rData, data,
+								(Object) localMap, feedbackArrayList);
 					}
 					if (result == null) {
-						WriteLog(ruleCond + ";" + ruleDesc + ";" + logDesc + ";result == null");
+						WriteLog(ruleCond + ";" + ruleDesc + ";" + logDesc
+								+ ";result == null");
 						result = false;
 					}
 					if (result && isExit) {
@@ -397,12 +460,12 @@ public class RuleHelper {
 					List<?> loopData;
 					if (loopTempMap.containsKey(ruleID)) {
 						loopData = loopTempMap.get(ruleID);
-					}else {
-						loopData = (List<?>)ExecuteExpr(loopKey, data);
+					} else {
+						loopData = (List<?>) ExecuteExpr(loopKey, data);
 					}
 					if (isEmptyString(ruleCond)) {
 						result = true;
-					}else {
+					} else {
 						result = (Boolean) ExecuteExpr(ruleCond, data);
 					}
 					Integer maxCount;
@@ -432,12 +495,13 @@ public class RuleHelper {
 						relDataStack.pop();
 					}
 				} else {
-					//枝节点
-					relDataStack.pop();	
+					// 枝节点
+					relDataStack.pop();
 					if (isEmptyString(ruleCond)) {
 						result = true;
-					}else {
-						result = (Boolean) ExecuteExpr(ruleCond, data ,(Object)localMap);
+					} else {
+						result = (Boolean) ExecuteExpr(ruleCond, data,
+								(Object) localMap);
 					}
 
 					if (result) {
@@ -454,5 +518,56 @@ public class RuleHelper {
 		return feedbackArrayList;
 	}
 
-	
+	/**
+	 * 执行单条规则
+	 * 
+	 * @param ruleId
+	 * @param data
+	 * @return
+	 */
+	public RuleFeedback executeSingleRule(BigDecimal ruleId, Object data) {
+		RuleData ruleData = getSingleRuleDataByHB(ruleId);
+		String ruleStatus = ruleData.getRuleStatus();
+		java.util.Date effectiveDate = ruleData.getEffectiveDate();
+		// SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String preRuleCond = ruleData.getPreRuleCond();
+		String ruleCond = ruleData.getRuleCond();
+		Boolean isFeedBack = ruleData.getIsFeedback();
+		String businessCode = ruleData.getBusinessCode();
+		String hitDesc = ruleData.getHitDesc();
+		String positionDesc = ruleData.getPositionDesc();
+		Boolean result = false;
+
+		if (ruleStatus.equals("1")) {
+			if (effectiveDate == null
+					|| effectiveDate.before(new java.util.Date())) {
+				if (preRuleCond == null || preRuleCond.trim().equals("")
+						|| (boolean) ExecuteExpr(preRuleCond, data)) {
+					result = (Boolean) ExecuteExpr(ruleCond, data);
+
+				}
+			}
+		}
+		
+		if (result) {
+			return new RuleFeedback(ruleId, isFeedBack, businessCode,
+					GetTransResult(hitDesc, data), GetTransResult(positionDesc,
+							data));
+		} else {
+			return null;
+		}
+	}
+
+	public boolean getRuleRelData() {
+		String sql = "select * from RULE_REL_DATA";
+		Query query = getSessionFactory().createSQLQuery(sql).addEntity(
+				RuleRelData.class);
+		List<RuleRelData> list = query.list();
+		if (list.size() > 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

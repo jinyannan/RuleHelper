@@ -1,18 +1,15 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1 -->
+<!-- Generated Jul 7, 2015 1:51:03 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
     <class name="gov.customs.jm.data.RuleData" table="RULE_DATA" schema="ALLSYS">
         <id name="ruleId" type="big_decimal">
             <column name="RULE_ID" scale="0" />
             <generator class="assigned" />
         </id>
-        <version name="version" type="big_decimal">
-            <column name="VERSION" scale="0" />
-        </version>
-        <property name="ruleDesc" type="string">
-            <column name="RULE_DESC" />
+        <property name="ruleName" type="string">
+            <column name="RULE_NAME" />
         </property>
         <property name="preRuleCond" type="string">
             <column name="PRE_RULE_COND" length="2048" />
@@ -20,8 +17,8 @@
         <property name="ruleCond" type="string">
             <column name="RULE_COND" length="2048" />
         </property>
-        <property name="postRuleCond" type="string">
-            <column name="POST_RULE_COND" length="2048" />
+        <property name="postRuleAction" type="string">
+            <column name="POST_RULE_ACTION" length="2048" />
         </property>
         <property name="isExit" type="java.lang.Boolean">
             <column name="IS_EXIT" precision="1" scale="0" />
@@ -35,20 +32,17 @@
         <property name="isEstimate" type="java.lang.Boolean">
             <column name="IS_ESTIMATE" precision="1" scale="0" />
         </property>
-        <property name="isShere" type="java.lang.Boolean">
-            <column name="IS_SHERE" precision="1" scale="0" />
+        <property name="isShare" type="java.lang.Boolean">
+            <column name="IS_SHARE" precision="1" scale="0" />
         </property>
         <property name="isFeedback" type="java.lang.Boolean">
             <column name="IS_FEEDBACK" precision="1" scale="0" />
         </property>
-        <property name="feedbackDesc" type="string">
-            <column name="FEEDBACK_DESC" length="2048" />
-        </property>
         <property name="ruleType" type="string">
             <column name="RULE_TYPE" length="1" />
         </property>
-        <property name="loopKey" type="string">
-            <column name="LOOP_KEY" />
+        <property name="loopCond" type="string">
+            <column name="LOOP_COND" length="2048" />
         </property>
         <property name="execKey" type="string">
             <column name="EXEC_KEY" />
@@ -59,11 +53,14 @@
         <property name="effectiveDate" type="date">
             <column name="EFFECTIVE_DATE" length="7" />
         </property>
-        <property name="serviceDomain" type="string">
-            <column name="SERVICE_DOMAIN" length="10" />
+        <property name="ruleVersion" type="big_decimal">
+            <column name="RULE_VERSION" scale="0" />
         </property>
-        <property name="belongSys" type="string">
-            <column name="BELONG_SYS" length="10" />
+        <property name="serviceDomain" type="big_decimal">
+            <column name="SERVICE_DOMAIN" scale="0" />
+        </property>
+        <property name="ownerSys" type="big_decimal">
+            <column name="OWNER_SYS" scale="0" />
         </property>
         <property name="category" type="string">
             <column name="CATEGORY" length="8" />

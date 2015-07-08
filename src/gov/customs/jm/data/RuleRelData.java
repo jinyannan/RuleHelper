@@ -1,6 +1,6 @@
 package gov.customs.jm.data;
 
-// Generated Jun 4, 2015 4:42:51 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jul 7, 2015 1:51:03 PM by Hibernate Tools 3.4.0.CR1
 
 import java.math.BigDecimal;
 
@@ -9,40 +9,61 @@ import java.math.BigDecimal;
  */
 public class RuleRelData implements java.io.Serializable {
 
-	private RuleRelDataId id;
-	private String postRuleDesc;
+	private BigDecimal relId;
+	private BigDecimal parentRuleId;
+	private BigDecimal ruleId;
+	private String postRuleCond;
 	private BigDecimal ruleOrder;
 	private String entityKeys;
 
 	public RuleRelData() {
 	}
 
-	public RuleRelData(RuleRelDataId id) {
-		this.id = id;
+	public RuleRelData(BigDecimal relId) {
+		this.relId = relId;
 	}
 
-	public RuleRelData(RuleRelDataId id, String postRuleDesc,
-			BigDecimal ruleOrder, String entityKeys) {
-		this.id = id;
-		this.postRuleDesc = postRuleDesc;
+	public RuleRelData(BigDecimal relId, BigDecimal parentRuleId,
+			BigDecimal ruleId, String postRuleCond, BigDecimal ruleOrder,
+			String entityKeys) {
+		this.relId = relId;
+		this.parentRuleId = parentRuleId;
+		this.ruleId = ruleId;
+		this.postRuleCond = postRuleCond;
 		this.ruleOrder = ruleOrder;
 		this.entityKeys = entityKeys;
 	}
 
-	public RuleRelDataId getId() {
-		return this.id;
+	public BigDecimal getRelId() {
+		return this.relId;
 	}
 
-	public void setId(RuleRelDataId id) {
-		this.id = id;
+	public void setRelId(BigDecimal relId) {
+		this.relId = relId;
 	}
 
-	public String getPostRuleDesc() {
-		return this.postRuleDesc;
+	public BigDecimal getParentRuleId() {
+		return this.parentRuleId;
 	}
 
-	public void setPostRuleDesc(String postRuleDesc) {
-		this.postRuleDesc = postRuleDesc;
+	public void setParentRuleId(BigDecimal parentRuleId) {
+		this.parentRuleId = parentRuleId;
+	}
+
+	public BigDecimal getRuleId() {
+		return this.ruleId;
+	}
+
+	public void setRuleId(BigDecimal ruleId) {
+		this.ruleId = ruleId;
+	}
+
+	public String getPostRuleCond() {
+		return this.postRuleCond;
+	}
+
+	public void setPostRuleCond(String postRuleCond) {
+		this.postRuleCond = postRuleCond;
 	}
 
 	public BigDecimal getRuleOrder() {
