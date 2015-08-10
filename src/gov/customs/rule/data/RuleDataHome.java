@@ -1,6 +1,6 @@
-package gov.customs.jm.data;
+package gov.customs.rule.data;
 
-// Generated Jul 7, 2015 1:51:04 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jul 22, 2015 2:11:25 PM by Hibernate Tools 3.4.0.CR1
 
 import java.util.List;
 import javax.naming.InitialContext;
@@ -11,13 +11,13 @@ import org.hibernate.SessionFactory;
 import static org.hibernate.criterion.Example.create;
 
 /**
- * Home object for domain model class RuleRelData.
- * @see gov.customs.jm.data.RuleRelData
+ * Home object for domain model class RuleData.
+ * @see gov.customs.rule.data.RuleData
  * @author Hibernate Tools
  */
-public class RuleRelDataHome {
+public class RuleDataHome {
 
-	private static final Log log = LogFactory.getLog(RuleRelDataHome.class);
+	private static final Log log = LogFactory.getLog(RuleDataHome.class);
 
 	private final SessionFactory sessionFactory = getSessionFactory();
 
@@ -32,8 +32,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void persist(RuleRelData transientInstance) {
-		log.debug("persisting RuleRelData instance");
+	public void persist(RuleData transientInstance) {
+		log.debug("persisting RuleData instance");
 		try {
 			sessionFactory.getCurrentSession().persist(transientInstance);
 			log.debug("persist successful");
@@ -43,8 +43,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void attachDirty(RuleRelData instance) {
-		log.debug("attaching dirty RuleRelData instance");
+	public void attachDirty(RuleData instance) {
+		log.debug("attaching dirty RuleData instance");
 		try {
 			sessionFactory.getCurrentSession().saveOrUpdate(instance);
 			log.debug("attach successful");
@@ -54,8 +54,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void attachClean(RuleRelData instance) {
-		log.debug("attaching clean RuleRelData instance");
+	public void attachClean(RuleData instance) {
+		log.debug("attaching clean RuleData instance");
 		try {
 			sessionFactory.getCurrentSession().lock(instance, LockMode.NONE);
 			log.debug("attach successful");
@@ -65,8 +65,8 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public void delete(RuleRelData persistentInstance) {
-		log.debug("deleting RuleRelData instance");
+	public void delete(RuleData persistentInstance) {
+		log.debug("deleting RuleData instance");
 		try {
 			sessionFactory.getCurrentSession().delete(persistentInstance);
 			log.debug("delete successful");
@@ -76,11 +76,11 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public RuleRelData merge(RuleRelData detachedInstance) {
-		log.debug("merging RuleRelData instance");
+	public RuleData merge(RuleData detachedInstance) {
+		log.debug("merging RuleData instance");
 		try {
-			RuleRelData result = (RuleRelData) sessionFactory
-					.getCurrentSession().merge(detachedInstance);
+			RuleData result = (RuleData) sessionFactory.getCurrentSession()
+					.merge(detachedInstance);
 			log.debug("merge successful");
 			return result;
 		} catch (RuntimeException re) {
@@ -89,12 +89,11 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public RuleRelData findById(java.math.BigDecimal id) {
-		log.debug("getting RuleRelData instance with id: " + id);
+	public RuleData findById(java.math.BigDecimal id) {
+		log.debug("getting RuleData instance with id: " + id);
 		try {
-			RuleRelData instance = (RuleRelData) sessionFactory
-					.getCurrentSession().get("gov.customs.jm.data.RuleRelData",
-							id);
+			RuleData instance = (RuleData) sessionFactory.getCurrentSession()
+					.get("gov.customs.rule.data.RuleData", id);
 			if (instance == null) {
 				log.debug("get successful, no instance found");
 			} else {
@@ -107,12 +106,12 @@ public class RuleRelDataHome {
 		}
 	}
 
-	public List<RuleRelData> findByExample(RuleRelData instance) {
-		log.debug("finding RuleRelData instance by example");
+	public List<RuleData> findByExample(RuleData instance) {
+		log.debug("finding RuleData instance by example");
 		try {
-			List<RuleRelData> results = (List<RuleRelData>) sessionFactory
+			List<RuleData> results = (List<RuleData>) sessionFactory
 					.getCurrentSession()
-					.createCriteria("gov.customs.jm.data.RuleRelData")
+					.createCriteria("gov.customs.rule.data.RuleData")
 					.add(create(instance)).list();
 			log.debug("find by example successful, result size: "
 					+ results.size());

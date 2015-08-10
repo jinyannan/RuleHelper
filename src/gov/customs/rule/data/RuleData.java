@@ -1,6 +1,6 @@
-package gov.customs.jm.data;
+package gov.customs.rule.data;
 
-// Generated Jul 7, 2015 1:51:03 PM by Hibernate Tools 3.4.0.CR1
+// Generated Jul 22, 2015 2:11:25 PM by Hibernate Tools 3.4.0.CR1
 
 import java.math.BigDecimal;
 import java.util.Date;

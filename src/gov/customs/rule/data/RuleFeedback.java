@@ -1,4 +1,4 @@
-package gov.customs.jm.data;
+package gov.customs.rule.data;
 
 import java.math.BigDecimal;
 
@@ -12,11 +12,11 @@ public class RuleFeedback {
 	public RuleFeedback(BigDecimal ruleId, Boolean isFeedBack,
 			String businessCode, String hitDesc, String positionDesc) {
 		super();
-		this.ruleId = ruleId;
-		this.isFeedBack = isFeedBack;
-		this.businessCode = businessCode;
-		this.hitDesc = hitDesc;
-		this.positionDesc = positionDesc;
+		this.ruleId = (ruleId == null ? BigDecimal.ZERO : ruleId);
+		this.isFeedBack = (isFeedBack == null ? false : isFeedBack);
+		this.businessCode = (businessCode == null ? "" : businessCode);
+		this.hitDesc = (hitDesc == null ? "" : hitDesc);
+		this.positionDesc = (positionDesc == null ? "" : positionDesc);
 	}
 	
 	public BigDecimal getRuleId() {

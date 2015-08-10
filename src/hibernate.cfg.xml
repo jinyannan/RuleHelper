@@ -8,9 +8,9 @@
   <property name="hibernate.connection.url">jdbc:oracle:thin:@192.168.31.189:1521:h2010</property>
   <property name="hibernate.connection.username">allsys</property>
   <property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>
-  <!-- <mapping class="gov.customs.jm.data.RuleData" resource="gov/customs/jm/data/RuleData.hbm.xml"/> -->
-  <mapping class="gov.customs.jm.data.RuleData" resource="gov/customs/jm/data/RuleData.hbm.xml" />
-  <!--  <mapping class="gov.customs.jm.data.RuleData" resource="gov/customs/jm/data/RuleData.hbm.xml" /> -->
+  <!-- <mapping class="gov.customs.rule.data.RuleData" resource="gov/customs/jm/data/RuleData.hbm.xml"/> -->
+  <mapping class="gov.customs.rule.data.RuleData" resource="gov/customs/rule/data/RuleData.hbm.xml" />
+  <!--  <mapping class="gov.customs.rule.data.RuleData" resource="gov/customs/jm/data/RuleData.hbm.xml" /> -->
   
  </session-factory>
 </hibernate-configuration>

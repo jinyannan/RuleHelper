@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 7 [1.7.0_67]"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ExpressionHelper"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
@@ -15,5 +14,8 @@
 	<classpathentry kind="lib" path="lib/jboss-logging-annotations-1.2.0.Beta1.jar"/>
 	<classpathentry kind="lib" path="lib/jboss-transaction-api_1.2_spec-1.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/ojdbc7.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-api-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-core-2.3.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ExpressionHelperProxy"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

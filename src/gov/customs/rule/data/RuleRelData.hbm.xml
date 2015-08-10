@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jul 7, 2015 1:51:03 PM by Hibernate Tools 3.4.0.CR1 -->
+<!-- Generated Jul 22, 2015 2:11:25 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
-    <class name="gov.customs.jm.data.RuleRelData" table="RULE_REL_DATA" schema="ALLSYS">
+    <class name="gov.customs.rule.data.RuleRelData" table="RULE_REL_DATA" schema="ALLSYS">
         <id name="relId" type="big_decimal">
             <column name="REL_ID" scale="0" />
             <generator class="assigned" />
