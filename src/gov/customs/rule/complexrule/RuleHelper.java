@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 
 import javax.sql.rowset.CachedRowSet;
 
+import oracle.net.aso.i;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.ThreadContext;
 import org.hibernate.HibernateException;
@@ -29,6 +31,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import gov.customs.rule.data.*;
 import gov.customs.rule.expression.proxy.*;
@@ -41,28 +45,59 @@ public class RuleHelper {
 
 	private Boolean isGo = true;
 
-	/**
-	 * 判断是否合法日期
-	 * 
-	 * @param str
-	 * @return
-	 */
-	private boolean isValidDate(String str) {
-		boolean convertSuccess = false;
-		SimpleDateFormat[] formats = { new SimpleDateFormat("yyyy-MM-dd"),
-				new SimpleDateFormat("yyyy/MM/dd") };
-		for (SimpleDateFormat simpleDateFormat : formats) {
-			try {
-				simpleDateFormat.setLenient(false);
-				simpleDateFormat.parse(str);
-				convertSuccess = true;
-				break;
-			} catch (ParseException | NullPointerException e1) {
-			}
-		}
-
-		return convertSuccess;
+	public RuleHelper() {
+		super();
 	}
+
+	public HashMap<BigDecimal, RuleData> get_ruleDataCache() {
+		return _ruleDataCache;
+	}
+
+	public void set_ruleDataCache(HashMap<BigDecimal, RuleData> _ruleDataCache) {
+		this._ruleDataCache = _ruleDataCache;
+	}
+
+	public HashMap<BigDecimal, RuleRelData> get_ruleRelDataCache() {
+		return _ruleRelDataCache;
+	}
+
+	public void set_ruleRelDataCache(
+			HashMap<BigDecimal, RuleRelData> _ruleRelDataCache) {
+		this._ruleRelDataCache = _ruleRelDataCache;
+	}
+
+	public HashMap<BigDecimal, List<RuleRelData>> get_ruleRelCache() {
+		return _ruleRelCache;
+	}
+
+	public void set_ruleRelCache(
+			HashMap<BigDecimal, List<RuleRelData>> _ruleRelCache) {
+		this._ruleRelCache = _ruleRelCache;
+	}
+
+	public HashMap<BigDecimal, List<RuleVariables>> get_ruleVar() {
+		return _ruleVar;
+	}
+
+	public void set_ruleVar(HashMap<BigDecimal, List<RuleVariables>> _ruleVar) {
+		this._ruleVar = _ruleVar;
+	}
+
+	public RuleHelper(HashMap<BigDecimal, RuleData> _ruleDataCache,
+			HashMap<BigDecimal, RuleRelData> _ruleRelDataCache,
+			HashMap<BigDecimal, List<RuleRelData>> _ruleRelCache,
+			HashMap<BigDecimal, List<RuleVariables>> _ruleVar) {
+		super();
+		this._ruleDataCache = _ruleDataCache;
+		this._ruleRelDataCache = _ruleRelDataCache;
+		this._ruleRelCache = _ruleRelCache;
+		this._ruleVar = _ruleVar;
+	}
+
+	private HashMap<BigDecimal, RuleData> _ruleDataCache = null;
+	private HashMap<BigDecimal, RuleRelData> _ruleRelDataCache = null;
+	private HashMap<BigDecimal, List<RuleRelData>> _ruleRelCache = null;
+	private HashMap<BigDecimal, List<RuleVariables>> _ruleVar = null;
 
 	/**
 	 * 根据父节点返回子节点list
@@ -71,16 +106,21 @@ public class RuleHelper {
 	 * @return
 	 */
 	private List<RuleRelData> getChileRuleRelDataByHB(BigDecimal parentRuleID) {
-		String sql = "select * from RULE_REL_DATA where PARENT_RULE_ID = "
-				+ parentRuleID + " order by rule_order desc";
-		Query queryRuleRelData = getSessionFactory().createSQLQuery(sql)
-				.addEntity(RuleRelData.class);
-		List<RuleRelData> listRuleRelData = queryRuleRelData.list();
-		if (listRuleRelData.size() > 0) {
-			return listRuleRelData;
+		if (_ruleRelCache == null || !_ruleRelCache.containsKey(parentRuleID)) {
+			String sql = "select * from RULE_REL_DATA where PARENT_RULE_ID = "
+					+ parentRuleID + " order by rule_order desc";
+			Query queryRuleRelData = getSessionFactory().createSQLQuery(sql)
+					.addEntity(RuleRelData.class);
+			List<RuleRelData> listRuleRelData = queryRuleRelData.list();
+			if (listRuleRelData.size() > 0) {
+				return listRuleRelData;
+			} else {
+				return null;
+			}
 		} else {
-			return null;
+			return _ruleRelCache.get(parentRuleID);
 		}
+
 	}
 
 	/**
@@ -90,15 +130,21 @@ public class RuleHelper {
 	 * @return
 	 */
 	private RuleRelData getSingleRelDataByHB(BigDecimal ruleId) {
-		String sql = "select * from RULE_REL_DATA where rule_id = " + ruleId;
-		Query query = getSessionFactory().createSQLQuery(sql).addEntity(
-				RuleRelData.class);
-		List<RuleRelData> list = query.list();
-		if (list.size() == 1) {
-			return list.get(0);
+		if (_ruleRelDataCache == null || !_ruleRelDataCache.containsKey(ruleId)) {
+			String sql = "select * from RULE_REL_DATA where rule_id = "
+					+ ruleId;
+			Query query = getSessionFactory().createSQLQuery(sql).addEntity(
+					RuleRelData.class);
+			List<RuleRelData> list = query.list();
+			if (list.size() == 1) {
+				return list.get(0);
+			} else {
+				return null;
+			}
 		} else {
-			return null;
+			return _ruleRelDataCache.get(ruleId);
 		}
+
 	}
 
 	/**
@@ -109,14 +155,41 @@ public class RuleHelper {
 	 */
 	private RuleData getSingleRuleDataByHB(BigDecimal ruleID) {
 
-		String sql = "select * from RULE_DATA where rule_id = " + ruleID;
-		Query query = getSessionFactory().createSQLQuery(sql).addEntity(
-				RuleData.class);
-		List<RuleData> list = query.list();
-		if (list.size() == 1) {
-			return (RuleData) list.get(0);
+		if (_ruleDataCache == null || !_ruleDataCache.containsKey(ruleID)) {
+			String sql = "select * from RULE_DATA where rule_id = " + ruleID;
+			Query query = getSessionFactory().createSQLQuery(sql).addEntity(
+					RuleData.class);
+			List<RuleData> list = query.list();
+			if (list.size() == 1) {
+				return (RuleData) list.get(0);
+			} else {
+				return null;
+			}
 		} else {
-			return null;
+			return _ruleDataCache.get(ruleID);
+		}
+
+	}
+
+	/**
+	 * 
+	 * @param ruleID
+	 * @return
+	 */
+	private List<RuleVariables> getRuleVariablesDataByHB(BigDecimal ruleID) {
+		if (_ruleVar == null || !_ruleVar.containsKey(ruleID)) {
+			String sql = "select * from RULE_VARIABLES where RULE_ID = "
+					+ ruleID;
+			Query queryRuleVarData = getSessionFactory().createSQLQuery(sql)
+					.addEntity(RuleVariables.class);
+			List<RuleVariables> listRuleVar = queryRuleVarData.list();
+			if (listRuleVar.size() > 0) {
+				return listRuleVar;
+			} else {
+				return null;
+			}
+		} else {
+			return _ruleVar.get(ruleID);
 		}
 	}
 
@@ -361,6 +434,7 @@ public class RuleHelper {
 		String note = "";
 		String businessCode = "";
 		String positionDesc = "";
+		Boolean containVar = false;
 
 		Boolean preResult = true;
 		Boolean result = true;
@@ -395,10 +469,6 @@ public class RuleHelper {
 			parentRuleID = ruleRelData.getParentRuleId();
 			ruleID = ruleRelData.getRuleId();
 			postRuleDesc = ruleRelData.getPostRuleCond();
-
-			if (ruleID == BigDecimal.valueOf(301)) {
-				System.out.println("hehe");
-			}
 
 			if (ruleID != null && ruleID != BigDecimal.ZERO) {
 				ruleData = getSingleRuleDataByHB(ruleID);
@@ -457,9 +527,6 @@ public class RuleHelper {
 			}
 			// FIXME
 			// System.out.println("ruleid==" + ruleID);
-			if (ruleID.equals(BigDecimal.valueOf(370))) {
-				System.out.println("hehe");
-			}
 
 			if (postResult) {
 				// 叶节点 ruletype == 0
@@ -505,7 +572,7 @@ public class RuleHelper {
 					}
 					Integer maxCount;
 					Integer currentCount;
-					//FIXME:
+					// FIXME:
 					maxCount = loopData.size();
 
 					if (loopCountMap.get(ruleID) == null) {
@@ -681,6 +748,22 @@ public class RuleHelper {
 				businessCode, hitDesc, positionDesc);
 
 		return feedback;
+	}
+
+	public void AddVariables(BigDecimal ruleId, Object data, Object local) {
+		HashMap<String, Object> hmlocal = (HashMap<String, Object>)local;
+		List<RuleVariables> ruleVarList = getRuleVariablesDataByHB(ruleId);
+		Object result = null;
+		String varKey = null;
+		String varExpr = "";
+		if (ruleVarList != null) {
+			for (int i = 0; i < ruleVarList.size(); i++) {
+				varKey = ruleVarList.get(i).getVarKey();
+				varExpr = ruleVarList.get(i).getVarExpr();
+				result = new ExpressionHelperProxy().ExecuteExpression(varExpr, data, local);
+				hmlocal.put(varKey, result);
+			}
+		}
 	}
 
 	public boolean getRuleRelData() {
